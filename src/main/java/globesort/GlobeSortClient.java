@@ -21,9 +21,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class GlobeSortClient {
-
 	static long timeToSort;
-
     private final ManagedChannel serverChannel;
     private final GlobeSortGrpc.GlobeSortBlockingStub serverStub;
 
@@ -41,19 +39,17 @@ public class GlobeSortClient {
     }
 
     public void run(Integer[] values) throws Exception {
-
-        IntArray request = IntArray.newBuilder().addAllValues(Arrays.asList(values)).build();
-        IntArray response = serverStub.sortIntegers(request);
-        System.out.println("Sorted array");
-
         System.out.println("Pinging " + serverStr + "...");
 
         long startTime = System.nanoTime();
         serverStub.ping(Empty.newBuilder().build());
-        long elapsedTime = System.nanoTime() - startTime;
 
+        long elapsedTime = System.nanoTime() - startTime;
         System.out.println("Total Ping Time: " + elapsedTime/ (1e9) + " sec");
+        //System.out.println("Half Ping Time: " + elapsedTime / 2.0 + " ns");
         System.out.println("Half Ping Time: " + (elapsedTime / 2.0) / (1e9) + " sec");
+
+
         System.out.println("Ping successful.");
 
         System.out.println("Requesting server to sort array");
@@ -62,10 +58,11 @@ public class GlobeSortClient {
 
         SortTime sortTime = response.getSortTime();
         timeToSort = sortTime.getSortTime();
+
         System.out.println("Sort on Server Time taken: " + timeToSort/(1e9) + " sec");
   		
         System.out.println("Sorted array");
-
+        
     }
 
     public void shutdown() throws InterruptedException {
@@ -102,15 +99,11 @@ public class GlobeSortClient {
     }
 
     public static void main(String[] args) throws Exception {
-
-
-	long startTime = System.nanoTime();
-
+    	long startTime = System.nanoTime();
         Namespace cmd_args = parseArgs(args);
         if (cmd_args == null) {
             throw new RuntimeException("Argument parsing failed");
         }
-
         int numValues = cmd_args.getInt("num_values");
         Integer[] values = genValues(numValues);
 
@@ -131,6 +124,8 @@ public class GlobeSortClient {
         long networkThroughputTime = elapsedTime - timeToSort;
         System.out.println("Total 2 way Network Throughput time: " + networkThroughputTime / (1e9) + " sec");
         System.out.println("1 way Network Throughput time: " + (networkThroughputTime / 2.0) / (1e9) + " sec");
+
+        
 
     }
 }
